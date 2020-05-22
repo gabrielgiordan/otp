@@ -931,21 +931,6 @@ dnl for now that is the way we do it.
 USER_LD=$LD
 USER_LDFLAGS="$LDFLAGS"
 LD='$(CC)'
-case $host_os in
-     darwin*)
-	saved_LDFLAGS="$LDFLAGS"
-	LDFLAGS="$LDFLAGS -Wl,-no_weak_imports"
-	AC_TRY_LINK([],[],
-		[
-			LD_MAY_BE_WEAK=no
-		],
-		[
-			LD_MAY_BE_WEAK=yes
-			LDFLAGS="$saved_LDFLAGS"
-		]);;
-    *)
-	LD_MAY_BE_WEAK=no;;
-esac
 
 AC_SUBST(LD)
 
@@ -1018,6 +1003,16 @@ case "${host}:${GCC}" in
     ;;
 esac
 
+case $host_os in
+        darwin19*)
+	    # Disable stack checking to avoid crashing with a segment fault
+	    # in macOS Catalina.
+	    AC_MSG_NOTICE([Turning off stack check on macOS 10.15 (Catalina)])
+	    CFLAGS="-fno-stack-check $CFLAGS"
+	    ;;
+        *)
+	    ;;
+esac
 
 dnl ----------------------------------------------------------------------
 dnl Checks for libraries.
